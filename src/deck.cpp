@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <map>
 #include "../include/deck.h"
 
 Card::Card(std::string s1, int n) {
@@ -46,7 +47,7 @@ Deck::Deck(const Deck &d) {
 
 std::string Deck::get_cards(std::vector<Card> m, std::vector<Card> e, std::vector<Card> s) {
 	std::string o_deck;
-	if (format == "pro2") {
+	if (format == "mobile") {
 		o_deck = "#created by ygopro2\n";
 		o_deck += main;
 		create_deck_pro2(o_deck, m);	
@@ -56,20 +57,21 @@ std::string Deck::get_cards(std::vector<Card> m, std::vector<Card> e, std::vecto
 
 		o_deck += side;
 		create_deck_pro2(o_deck, s);	
-	} else if (format == "mobile") {
+	} else if (format == "pro2") {
 		o_deck = "ygo://deck";
 		o_deck += main;
 		create_deck_mobile(o_deck, m);	
 
 		o_deck += extra;
-		create_deck_pro2(o_deck, e);	
+		create_deck_mobile(o_deck, e);	
 
 		o_deck += side;
-		create_deck_pro2(o_deck, s);	
+		create_deck_mobile(o_deck, s);	
 	} else {
 		std::cout << "invalid deck format" << std::endl;
 		exit(1);
 	}
+	return o_deck;
 }
 
 void create_deck_pro2(std::string &o_deck, std::vector<Card> c) {
@@ -84,9 +86,9 @@ void create_deck_pro2(std::string &o_deck, std::vector<Card> c) {
 void create_deck_mobile(std::string& o_deck, std::vector<Card> c) {
 	for (int i = 0; i < c.size(); i++) {
 		o_deck += c[i].get_id();
-		o_deck += "*";
 		if (c[i].get_number() != 1) {
-			o_deck += c[i].get_number();
+			o_deck += "*";
+			o_deck += std::to_string(c[i].get_number());
 		}
 		if (i != c.size()-1) {
 			o_deck += "_";
@@ -94,18 +96,39 @@ void create_deck_mobile(std::string& o_deck, std::vector<Card> c) {
 	}
 }
 
-void parse_pro2_deck(std::string content, std::vector<Card> &m, std::vector<Card> &e, std::vector<Card> &s) {
+void parse_pro2_deck(const std::string content, std::vector<Card> &m, std::vector<Card> &e, std::vector<Card> &s) {
+	int start = 0, end = 1, count = 0;
+	int m_start, m_end, e_start, e_end, s_start;
+	std::map<std::string, int>  card_map_str_times;
 	std::vector<std::string> content_splits;
-	int start = 0, end = 1;
-	while (1) {
+	while (end < content.size()) {
 		end = content.find('\n', start);
 		if (end == -1) {
 			break;
 		}
-		content_splits.push_back(content.substr(start, end));
+		std::string substr = content.substr(start, end-start);
+		if (substr == "#main") {m_start = count+1;}
+		if (substr == "#extra") {e_start = count+1; m_end = count;}
+		if (substr == "!side") {s_start = count+1;}
+		content_splits.push_back(substr);
+		count++;
+		end++;
 		start = end;
 	}
+	construct_card_deck(content_splits, m_start, m_end, card_map_str_times, m);
+	construct_card_deck(content_splits, e_start, e_end, card_map_str_times, e);
+	construct_card_deck(content_splits, s_start, content_splits.size(), card_map_str_times, s);
 }
+
+void construct_card_deck(std::vector<std::string> content_splits, int start, int end, std::map<std::string, int> &card_map_str_times, std::vector<Card> &c) {
+	card_map_str_times.clear(); // clear map to store cards of new category
+	for (int i = start; i < end; i++) {
+		card_map_str_times[content_splits[i]]++;
+	}
+	for (std::map<std::string, int>::iterator it = card_map_str_times.begin(); it != card_map_str_times.end(); it++) {
+		c.push_back(Card(it->first, it->second));
+	}
+}	
 
 void parse_mobile_deck(std::string content, std::vector<Card> &m, std::vector<Card> &e, std::vector<Card> &s) {
 
