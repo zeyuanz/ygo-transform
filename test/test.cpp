@@ -17,9 +17,15 @@ int main(int argc, char** argv) {
     string content( (istreambuf_iterator<char>(fd_in)),
                        (istreambuf_iterator<char>()    ));
     fd_in.close();
-    d.set_format("pro2");
-    d.set_cards("?main=", "&extra=", "&side=");
-    parse_pro2_deck(content, m, e, s);
+    if (content[0] == '#') {
+        d.set_format("pro2");
+        d.set_cards("?main=", "&extra=", "&side=");
+        parse_pro2_deck(content, m, e, s);
+    } else {
+        d.set_format("mobile");
+        d.set_cards("#main\n", "#extra\n", "!side\n");
+        parse_mobile_deck(content, m, e, s);
+    }
     string o_deck = d.get_cards(m, e, s);
     if (outfile == "stdin") {
         cout << o_deck << endl;

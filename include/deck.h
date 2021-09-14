@@ -56,6 +56,7 @@ void create_deck_mobile(std::string &o_deck, std::vector<Card> c);
 
 void parse_pro2_deck(std::string content, std::vector<Card> &m, std::vector<Card> &e, std::vector<Card> &s);
 void parse_mobile_deck(std::string content, std::vector<Card> &m, std::vector<Card> &e, std::vector<Card> &s);
-void construct_card_deck(std::vector<std::string> content_splits, int start, int end, std::map<std::string, int> &card_map_str_times, std::vector<Card> &c);
+void construct_card_deck_pro2(std::vector<std::string> content_splits, int start, int end, std::map<std::string, int> &card_map_str_times, std::vector<Card> &c);
+void construct_card_deck_mobile(std::string content, std::vector<Card> &c);
 
 #endif
