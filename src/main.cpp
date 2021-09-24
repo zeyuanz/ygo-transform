@@ -6,31 +6,39 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-    string file = argv[1]; //obtain the name of file
-    string content, o_deck;
+	if (argc == 1 || string(argv[1])=="-h") {
+		cout << "Usage	ygodeck [source_file] [dest_file]\n";
+		cout << "Program options:\n";
+		cout << "	-h	--print this message\n";
+		return 0;
+	}
+    string infile = argv[1]; //obtain the name of file
+    string outfile = "stdin";
+    if (argc >= 3) {
+        outfile = argv[2];
+    }
     vector<Card> m, e, s;
     Deck d;
-    ifstream fd_in(file);    
-    fd_in >> content;
+    ifstream fd_in(infile);    
+    string content( (istreambuf_iterator<char>(fd_in)),
+                       (istreambuf_iterator<char>()    ));
     fd_in.close();
-
     if (content[0] == '#') {
         d.set_format("pro2");
-        d.set_cards("#main\n", "#extra\n", "!side\n");
+        d.set_cards("?main=", "&extra=", "&side=");
         parse_pro2_deck(content, m, e, s);
-    } else if (content[0] == 'y') {
-        d.set_format("mobile");
-        d.set_cards("=?main", "=&extra", "=&side");
-        parse_mobile_deck(content, m, e, s);
     } else {
-        cout << "invalid format.\n";
-        exit(1);
+        d.set_format("mobile");
+        d.set_cards("#main\n", "#extra\n", "!side\n");
+        parse_mobile_deck(content, m, e, s);
     }
-
-    o_deck = d.get_cards(m, e, s);
-
-    ofstream fd_out(file);
-    fd_out << o_deck;
-    fd_out.close();
+    string o_deck = d.get_cards(m, e, s);
+    if (outfile == "stdin") {
+        cout << o_deck << endl;
+    } else {
+        ofstream fd_out(outfile);
+        fd_out << o_deck << endl;
+        fd_out.close();
+    }
     return 0;
 }

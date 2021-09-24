@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/mnt/d/Mywork/ygoDeckTransform/include/deck.h
+string
+-
+vector
+-
+map
+-
+
+/mnt/d/Mywork/ygoDeckTransform/src/main.cpp
+../include/deck.h
+/mnt/d/Mywork/ygoDeckTransform/include/deck.h
+string
+-
+iostream
+-
+fstream
+-
+
