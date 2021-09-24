@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/ygodeck.dir/src/deck.cpp.o CMakeFiles/ygodeck.dir/src/main.cpp.o  -o ../bin/ygodeck 
