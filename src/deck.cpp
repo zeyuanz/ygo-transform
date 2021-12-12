@@ -135,6 +135,9 @@ void construct_card_deck_pro2(std::vector<std::string> content_splits, int start
 		card_id2times[content_splits[i]]++;
 	}
 	for (std::map<std::string, int>::iterator it = card_id2times.begin(); it != card_id2times.end(); it++) {
+		if (it->first.size() == 0) {
+			continue;
+		}
 		c.push_back(Card(it->first, it->second));
 	}
 }	
@@ -164,6 +167,9 @@ void construct_card_deck_mobile(std::string content, std::vector<Card> &c) {
 			end = content.size();
 		}
 		std::string card_tmp = content.substr(start, end-start);
+		if (card_tmp.size() == 0) {
+			continue;
+		}
 		int times;
 		if (card_tmp.find('*') == -1) { 
 			times = 1; 
@@ -176,4 +182,22 @@ void construct_card_deck_mobile(std::string content, std::vector<Card> &c) {
 		end++;
 		start = end;
 	}
+}
+
+void indeck_to_cards(Deck *d, std::string content, std::vector<Card> &main_cards, std::vector<Card> &extra_cards, std::vector<Card> &side_cards) {
+    if (content[0] == '#') {
+		// set deck format to pro2
+        d->set_format("pro2");
+		// set title of transformed deck (i.e. title of mobile)
+        d->set_trans_title("?main=", "&extra=", "&side=");
+		// parse content to main, extra and side
+        parse_pro2_deck(content, main_cards, extra_cards, side_cards);
+    } else {
+		// set deck format to mobile 
+        d->set_format("mobile");
+		// set title of transformed deck (i.e. title of pro2)
+        d->set_trans_title("#main\n", "#extra\n", "!side\n");
+		// parse content to main, extra and side
+        parse_mobile_deck(content, main_cards, extra_cards, side_cards);
+    }
 }

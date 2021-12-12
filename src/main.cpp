@@ -30,21 +30,7 @@ int main(int argc, char** argv) {
     fd_in.close();
 
 	// if content start with #, then it is a pro2 format deck
-    if (content[0] == '#') {
-		// set deck format to pro2
-        d.set_format("pro2");
-		// set title of transformed deck (i.e. title of mobile)
-        d.set_trans_title("?main=", "&extra=", "&side=");
-		// parse content to main, extra and side
-        parse_pro2_deck(content, main_cards, extra_cards, side_cards);
-    } else {
-		// set deck format to mobile 
-        d.set_format("mobile");
-		// set title of transformed deck (i.e. title of pro2)
-        d.set_trans_title("#main\n", "#extra\n", "!side\n");
-		// parse content to main, extra and side
-        parse_mobile_deck(content, main_cards, extra_cards, side_cards);
-    }
+	indeck_to_cards(&d, content, main_cards, extra_cards, side_cards);
 	// output deck to o_deck
     string o_deck = d.output_deck(main_cards, extra_cards, side_cards);
 
