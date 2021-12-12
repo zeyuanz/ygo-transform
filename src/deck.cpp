@@ -33,40 +33,41 @@ Card::Card(const Card &c) {
 
 Deck::Deck(std::string f, std::string m, std::string e, std::string s) {
 	format = f;
-	main = m;
-	extra = e;
-	side = s;
+	main_title = m;
+	extra_title = e;
+	side_title = s;
 }
 
 Deck::Deck(const Deck &d) {
 	format = d.format;
-	main = d.main;
-	extra = d.extra;
-	side = d.side;
+	main_title = d.main_title;
+	extra_title = d.extra_title;
+	side_title = d.side_title;
 }
 
-std::string Deck::get_cards(std::vector<Card> m, std::vector<Card> e, std::vector<Card> s) {
+// format separate main deck, extra deck and side deck into output_deck
+std::string Deck::output_deck(std::vector<Card> m, std::vector<Card> e, std::vector<Card> s) {
 	std::string o_deck;
 	if (format == "mobile") {
 		o_deck = "#created by ygopro2\n";
-		o_deck += main;
+		o_deck += main_title;
 		create_deck_pro2(o_deck, m);	
 
-		o_deck += extra;
+		o_deck += extra_title;
 		create_deck_pro2(o_deck, e);	
 
-		o_deck += side;
+		o_deck += side_title;
 		create_deck_pro2(o_deck, s);	
 		o_deck = o_deck.substr(0, o_deck.size()-1); // remove final '\n'
 	} else if (format == "pro2") {
 		o_deck = "ygo://deck";
-		o_deck += main;
+		o_deck += main_title;
 		create_deck_mobile(o_deck, m);	
 
-		o_deck += extra;
+		o_deck += extra_title;
 		create_deck_mobile(o_deck, e);	
 
-		o_deck += side;
+		o_deck += side_title;
 		create_deck_mobile(o_deck, s);	
 	} else {
 		std::cout << "invalid deck format" << std::endl;
@@ -75,6 +76,7 @@ std::string Deck::get_cards(std::vector<Card> m, std::vector<Card> e, std::vecto
 	return o_deck;
 }
 
+// create cards for pro2 format
 void create_deck_pro2(std::string &o_deck, std::vector<Card> c) {
 	for (int i = 0; i < c.size(); i++) {
 		for (int j = 0; j < c[i].get_number(); j++) {
@@ -84,6 +86,7 @@ void create_deck_pro2(std::string &o_deck, std::vector<Card> c) {
 	}
 }
 
+// create cards for mobile format
 void create_deck_mobile(std::string& o_deck, std::vector<Card> c) {
 	for (int i = 0; i < c.size(); i++) {
 		o_deck += c[i].get_id();
@@ -97,6 +100,7 @@ void create_deck_mobile(std::string& o_deck, std::vector<Card> c) {
 	}
 }
 
+// parse pro2 deck from content to main deck, extra deck and side deck
 void parse_pro2_deck(const std::string content, std::vector<Card> &m, std::vector<Card> &e, std::vector<Card> &s) {
 	int start = 0, end = 1, count = 0;
 	int m_start, m_end, e_start, e_end, s_start;
@@ -124,16 +128,18 @@ void parse_pro2_deck(const std::string content, std::vector<Card> &m, std::vecto
 	construct_card_deck_pro2(content_splits, s_start, content_splits.size(), card_map_str_times, s);
 }
 
-void construct_card_deck_pro2(std::vector<std::string> content_splits, int start, int end, std::map<std::string, int> &card_map_str_times, std::vector<Card> &c) {
-	card_map_str_times.clear(); // clear map to store cards of new category
+// construct pro2 deck into content_splits
+void construct_card_deck_pro2(std::vector<std::string> content_splits, int start, int end, std::map<std::string, int> &card_id2times, std::vector<Card> &c) {
+	card_id2times.clear(); // clear map to store cards of new category
 	for (int i = start; i < end; i++) {
-		card_map_str_times[content_splits[i]]++;
+		card_id2times[content_splits[i]]++;
 	}
-	for (std::map<std::string, int>::iterator it = card_map_str_times.begin(); it != card_map_str_times.end(); it++) {
+	for (std::map<std::string, int>::iterator it = card_id2times.begin(); it != card_id2times.end(); it++) {
 		c.push_back(Card(it->first, it->second));
 	}
 }	
 
+// parse mobile deck from content to main deck, extra deck and side deck
 void parse_mobile_deck(std::string content, std::vector<Card> &m, std::vector<Card> &e, std::vector<Card> &s) {
 	int start = content.find("main=") + 5;
 	int end = content.find("&extra=");
@@ -147,6 +153,7 @@ void parse_mobile_deck(std::string content, std::vector<Card> &m, std::vector<Ca
 	construct_card_deck_mobile(content.substr(start), s);
 }
 
+// construct mobile deck into content_splites
 void construct_card_deck_mobile(std::string content, std::vector<Card> &c) {
 	int start = 0, end = 0;
 	bool continue_flag = true;
